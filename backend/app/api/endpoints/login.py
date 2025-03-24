@@ -42,3 +42,10 @@ def test_token(current_user: models.User = Depends(deps.get_current_user)) -> An
     Test access token
     """
     return current_user
+
+@router.post("/test-simple")
+def test_simple_login():
+    """
+    Simple login test endpoint (no DB, no dependencies)
+    """
+    return {"status": "success", "message": "API funcionando correctamente"}

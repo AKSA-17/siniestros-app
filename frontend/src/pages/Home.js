@@ -9,10 +9,13 @@ const Home = () => {
   useEffect(() => {
     const checkApiStatus = async () => {
       try {
+        console.log("Intentando conectar con el backend...");
         const response = await apiClient.get('/api/health');
+        console.log("Respuesta del backend:", response.data);
         setApiStatus(response.data);
         setLoading(false);
       } catch (error) {
+        console.error("Error al conectar con el backend:", error);
         setApiStatus({ status: 'error', message: 'No se pudo conectar con la API' });
         setLoading(false);
       }

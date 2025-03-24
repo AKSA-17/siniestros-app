@@ -1,5 +1,3 @@
-# Este es el punto de entrada de la aplicación. Configura la aplicación FastAPI, middleware CORS y registra todas las rutas API
-
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.api import api_router
@@ -11,10 +9,12 @@ app = FastAPI(
     version="0.1.0",
 )
 
-# Configurar CORS con configuración más permisiva
+# Configurar CORS - Completamente permisivo para desarrollo
+origins = ["*"]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Permite cualquier origen (sólo para desarrollo)
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

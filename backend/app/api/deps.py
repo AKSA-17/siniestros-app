@@ -10,14 +10,15 @@ from sqlalchemy.orm import Session
 
 from app import crud, models, schemas
 from app.core.config import settings
-from app.db.session import get_db as get_db_session
+from app.db.session import get_db  # Importa get_db directamente desde session.py
 
 reusable_oauth2 = OAuth2PasswordBearer(
     tokenUrl=f"/api/login/access-token"
 )
 
-def get_db() -> Generator:
-    return get_db_session()
+# Elimina o comenta la función get_db si ya existe
+# def get_db() -> Generator:
+#     return get_db_session()
 
 def get_current_user(
     db: Session = Depends(get_db), token: str = Depends(reusable_oauth2)

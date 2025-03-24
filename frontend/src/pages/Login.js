@@ -24,8 +24,10 @@ const Login = () => {
     }
     
     setFormError('');
+    console.log("Intentando iniciar sesión con:", email);
     const success = await login(email, password);
     
+    console.log("Resultado del login:", success);
     if (success) {
       navigate('/dashboard');
     }
@@ -65,6 +67,8 @@ const Login = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               disabled={loading}
+              error={!!formError && !email}
+              helperText={formError && !email ? 'Campo requerido' : ''}
             />
             <TextField
               margin="normal"
@@ -78,6 +82,8 @@ const Login = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               disabled={loading}
+              error={!!formError && !password}
+              helperText={formError && !password ? 'Campo requerido' : ''}
             />
             <Button
               type="submit"

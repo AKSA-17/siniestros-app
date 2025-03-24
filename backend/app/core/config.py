@@ -1,5 +1,6 @@
 # Define configuraciones como claves secretas, conexión a base de datos y tiempos de expiración de tokens.
 
+# Define configuraciones como claves secretas, conexión a base de datos y tiempos de expiración de tokens.
 from typing import List
 from pydantic_settings import BaseSettings
 from pydantic import PostgresDsn
@@ -15,7 +16,7 @@ class Settings(BaseSettings):
     # Base de datos
     DATABASE_URL: str = "postgresql://postgres:database@localhost/siniestros"
     
-    # CORS
+    # CORS - Asegúrate de que incluya el origen de tu frontend
     BACKEND_CORS_ORIGINS: List[str] = ["http://localhost:3000"]
     
     # Superusuario inicial

@@ -15,6 +15,7 @@ export const AuthProvider = ({ children }) => {
   // Verificar token al cargar la aplicación
   useEffect(() => {
     const checkAuth = async () => {
+      setLoading(true);
       const token = localStorage.getItem('token');
       if (token) {
         try {
@@ -24,6 +25,7 @@ export const AuthProvider = ({ children }) => {
           // Si el token no es válido, lo eliminamos
           localStorage.removeItem('token');
           console.error('Error de autenticación:', err);
+          setError(err.response?.data?.detail || 'Error de autenticación');
         }
       }
       setLoading(false);
@@ -34,13 +36,15 @@ export const AuthProvider = ({ children }) => {
 
   // Función para iniciar sesión
   const login = async (email, password) => {
-    setLoading(true);
-    setError(null);
     try {
-      const response = await apiClient.post('/api/login/access-token', {
-        username: email,
-        password: password
-      }, {
+      setLoading(true);
+      setError(null);
+      
+      const formData = new URLSearchParams();
+      formData.append('username', email);
+      formData.append('password', password);
+      
+      const response = await apiClient.post('/api/login/access-token', formData, {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded'
         }
@@ -52,30 +56,34 @@ export const AuthProvider = ({ children }) => {
       // Obtener información del usuario
       const userResponse = await apiClient.post('/api/login/test-token');
       setUser(userResponse.data);
-      setLoading(false);
       return true;
     } catch (err) {
+      console.error("Error en login:", err);
       setError(err.response?.data?.detail || 'Error al iniciar sesión');
-      setLoading(false);
       return false;
+    } finally {
+      setLoading(false);
     }
   };
 
   // Función para registrar un nuevo usuario
-// Función para registrar un nuevo usuario
-const register = async (userData) => {
-    setLoading(true);
-    setError(null);
+  const register = async (userData) => {
     try {
-      // Usar la ruta de registro abierto
-      await apiClient.post('/api/users/open', userData);
-      setLoading(false);
+      setLoading(true);
+      setError(null);
+      
+      await apiClient.post('/api/users/open', userData, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
       return true;
     } catch (err) {
-      console.error("Error al registrar:", err); // Añadir para depuración
+      console.error("Error al registrar:", err);
       setError(err.response?.data?.detail || 'Error al registrar usuario');
-      setLoading(false);
       return false;
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -83,6 +91,7 @@ const register = async (userData) => {
   const logout = () => {
     localStorage.removeItem('token');
     setUser(null);
+    setError(null);
   };
 
   // Verificar si el usuario está autenticado
@@ -104,3 +113,5 @@ const register = async (userData) => {
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
+
+export default AuthProvider;
