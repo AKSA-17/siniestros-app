@@ -145,3 +145,5 @@ Cuando estés desarrollando nuevas funcionalidades:
 3. **Integración**:
    - Asegúrate de que los cambios en backend y frontend funcionen juntos
    - Verifica la comunicación entre ambos componentes
+
+   

@@ -8,6 +8,7 @@ import DashboardIcon from '@mui/icons-material/Dashboard';
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import DescriptionIcon from '@mui/icons-material/Description';
 import PeopleIcon from '@mui/icons-material/People';
+import BuildIcon from '@mui/icons-material/Build';
 import { useAuth } from '../../context/AuthContext';
 
 // Ancho del drawer
@@ -43,6 +44,11 @@ const Sidebar = ({ open }) => {
       text: 'Usuarios',
       icon: <PeopleIcon />,
       path: '/usuarios'
+    },
+    {
+      text: 'Herramientas OCR',
+      icon: <BuildIcon />,
+      path: '/herramientas/ocr'
     }
   ];
   

@@ -18,8 +18,14 @@ import Unauthorized from './pages/Unauthorized';
 // Páginas protegidas
 import Dashboard from './pages/Dashboard';
 import SiniestrosList from './pages/siniestros/SiniestrosList';
+import SiniestroDetail from './pages/siniestros/SiniestroDetail';
 import NewSiniestro from './pages/siniestros/NewSiniestro';
 import DocumentsList from './pages/documents/DocumentsList';
+
+// Páginas de documentos
+import UploadDocument from './pages/documents/UploadDocument';
+import DocumentDetail from './pages/documents/DocumentDetail';
+import OcrTool from './pages/documents/OcrTool';
 
 // Crear tema personalizado
 const theme = createTheme({
@@ -72,7 +78,14 @@ function App() {
               <Route path="dashboard" element={<Dashboard />} />
               <Route path="siniestros" element={<SiniestrosList />} />
               <Route path="siniestros/nuevo" element={<NewSiniestro />} />
+              <Route path="siniestros/:siniestroId" element={<SiniestroDetail />} />
+              <Route path="siniestros/:siniestroId/editar" element={<div>Editar Siniestro (Próximamente)</div>} />
               <Route path="documentos" element={<DocumentsList />} />
+              <Route path="documentos/subir" element={<UploadDocument />} />
+              <Route path="documentos/:documentId" element={<DocumentDetail />} />
+              <Route path="siniestros/:siniestroId/documentos" element={<DocumentsList />} />
+              <Route path="siniestros/:siniestroId/documentos/subir" element={<UploadDocument />} />
+              <Route path="herramientas/ocr" element={<OcrTool />} />
               <Route 
                 path="usuarios" 
                 element={

@@ -2,9 +2,10 @@ import React, { useState, useEffect } from 'react';
 import {
   Typography, Box, Paper, Table, TableBody, TableCell,
   TableContainer, TableHead, TableRow, TablePagination,
-  Chip, IconButton, Button, TextField, InputAdornment
+  Chip, IconButton, Button, TextField, InputAdornment,
+  CircularProgress, Alert
 } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import SearchIcon from '@mui/icons-material/Search';
@@ -19,45 +20,37 @@ const DocumentsList = () => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [searchTerm, setSearchTerm] = useState('');
+  const [totalDocuments, setTotalDocuments] = useState(0);
   
   const navigate = useNavigate();
+  const location = useLocation();
   
-  // Simular datos de documentos para el MVP
+  // Obtener ID del siniestro de la URL si está presente
+  const getSiniestroIdFromUrl = () => {
+    const path = location.pathname;
+    const matches = path.match(/\/siniestros\/(\d+)\/documentos/);
+    return matches ? matches[1] : null;
+  };
+  
+  const siniestroId = getSiniestroIdFromUrl();
+  
+  // Cargar documentos
   useEffect(() => {
     const fetchDocuments = async () => {
+      setLoading(true);
       try {
-        // En un caso real, harías una llamada a la API para obtener los documentos
-        // const response = await apiClient.get('/api/documents/');
+        let response;
         
-        // Datos simulados para desarrollo
-        const dummyData = [
-          {
-            id: 1,
-            name: 'INE-Juan-Perez.pdf',
-            document_type: 'INE',
-            upload_date: '2023-05-15T10:30:00',
-            validated: true,
-            siniestro_id: 1
-          },
-          {
-            id: 2,
-            name: 'Poliza-Auto-12345.pdf',
-            document_type: 'Póliza',
-            upload_date: '2023-05-16T14:20:00',
-            validated: false,
-            siniestro_id: 1
-          },
-          {
-            id: 3,
-            name: 'Comprobante-Pago.pdf',
-            document_type: 'Comprobante',
-            upload_date: '2023-05-17T09:15:00',
-            validated: true,
-            siniestro_id: 2
-          }
-        ];
+        if (siniestroId) {
+          // Cargar documentos de un siniestro específico
+          response = await apiClient.get(`/api/documents/by-siniestro/${siniestroId}`);
+        } else {
+          // Cargar todos los documentos
+          response = await apiClient.get('/api/documents');
+        }
         
-        setDocuments(dummyData);
+        setDocuments(response.data);
+        setTotalDocuments(response.data.length);
         setLoading(false);
       } catch (err) {
         console.error('Error al cargar documentos:', err);
@@ -67,7 +60,7 @@ const DocumentsList = () => {
     };
     
     fetchDocuments();
-  }, []);
+  }, [siniestroId]);
   
   // Manejadores de paginación
   const handleChangePage = (event, newPage) => {
@@ -94,26 +87,50 @@ const DocumentsList = () => {
     const date = new Date(dateString);
     return date.toLocaleDateString('es-ES');
   };
+  
+  // Manejar clic en botón de subir documento
+  const handleUploadClick = () => {
+    if (siniestroId) {
+      navigate(`/siniestros/${siniestroId}/documentos/subir`);
+    } else {
+      navigate('/documentos/subir');
+    }
+  };
 
   if (loading) {
-    return <Typography>Cargando documentos...</Typography>;
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+        <CircularProgress />
+      </Box>
+    );
   }
 
   if (error) {
-    return <Typography color="error">{error}</Typography>;
+    return (
+      <Box sx={{ mt: 4 }}>
+        <Alert severity="error">{error}</Alert>
+        <Button 
+          variant="contained" 
+          onClick={() => window.location.reload()}
+          sx={{ mt: 2 }}
+        >
+          Reintentar
+        </Button>
+      </Box>
+    );
   }
 
   return (
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
         <Typography variant="h4" component="h1">
-          Documentos
+          {siniestroId ? 'Documentos del Siniestro' : 'Documentos'}
         </Typography>
         
         <Button 
           variant="contained" 
           startIcon={<UploadFileIcon />}
-          onClick={() => navigate('/documentos/subir')}
+          onClick={handleUploadClick}
         >
           Subir Documento
         </Button>
@@ -198,23 +215,35 @@ const DocumentsList = () => {
                 </TableRow>
               ))
             )}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      
-      <TablePagination
-        rowsPerPageOptions={[5, 10, 25]}
-        component="div"
-        count={filteredDocuments.length}
-        rowsPerPage={rowsPerPage}
-        page={page}
-        onPageChange={handleChangePage}
-        onRowsPerPageChange={handleChangeRowsPerPage}
-        labelRowsPerPage="Filas por página:"
-        labelDisplayedRows={({ from, to, count }) => `${from}-${to} de ${count}`}
-      />
-    </Box>
-  );
-};
+            </TableBody>
+            </Table>
+            </TableContainer>
 
-export default DocumentsList;
+            <TablePagination
+            rowsPerPageOptions={[5, 10, 25]}
+            component="div"
+            count={filteredDocuments.length}
+            rowsPerPage={rowsPerPage}
+            page={page}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+            labelRowsPerPage="Filas por página:"
+            labelDisplayedRows={({ from, to, count }) => `${from}-${to} de ${count}`}
+            />
+
+            {siniestroId && (
+            <Box sx={{ mt: 3 }}>
+            <Button 
+            variant="outlined"
+            onClick={() => navigate(`/siniestros/${siniestroId}`)}
+            >
+            Volver al Siniestro
+            </Button>
+            </Box>
+            )}
+            </Box>
+            );
+            };
+
+            export default DocumentsList;
+                          
