@@ -1,5 +1,3 @@
-# Implementa operaciones CRUD específicas para usuarios, incluyendo autenticación.
-
 from typing import Any, Dict, Optional, Union
 
 from sqlalchemy.orm import Session
@@ -18,7 +16,11 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
             email=obj_in.email,
             hashed_password=get_password_hash(obj_in.password),
             full_name=obj_in.full_name,
-            is_agent=obj_in.is_agent,
+            is_active=obj_in.is_active,
+            documents=obj_in.documents,  # New field for documents
+            documents_id=obj_in.documents_id,  # New field for document IDs
+            documents_link=obj_in.documents_link,  # New field for document links
+            documents_status=obj_in.documents_status,  # New field for document status
         )
         db.add(db_obj)
         db.commit()
@@ -32,10 +34,22 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
             update_data = obj_in
         else:
             update_data = obj_in.dict(exclude_unset=True)
+        
         if update_data.get("password"):
             hashed_password = get_password_hash(update_data["password"])
             del update_data["password"]
             update_data["hashed_password"] = hashed_password
+        
+        # Include the documents fields in the update if they are present
+        if update_data.get("documents"):
+            db_obj.documents = update_data["documents"]
+        if update_data.get("documents_id"):
+            db_obj.documents_id = update_data["documents_id"]
+        if update_data.get("documents_link"):
+            db_obj.documents_link = update_data["documents_link"]
+        if update_data.get("documents_status"):
+            db_obj.documents_status = update_data["documents_status"]
+
         return super().update(db, db_obj=db_obj, obj_in=update_data)
 
     def authenticate(self, db: Session, *, email: str, password: str) -> Optional[User]:
