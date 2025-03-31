@@ -1,6 +1,4 @@
-#Define esquemas para validación y serialización de usuarios.
-
-from typing import Optional
+from typing import Optional, List
 from pydantic import BaseModel, EmailStr
 
 # Esquema base
@@ -13,15 +11,29 @@ class UserBase(BaseModel):
 class UserCreate(UserBase):
     email: EmailStr
     password: str
+    is_active: Optional[bool] = True
+    documents: Optional[List[str]] = []  # Lista de documentos
+    documents_id: Optional[List[str]] = []  # IDs de documentos
+    documents_link: Optional[List[str]] = []  # Enlaces a documentos
+    documents_status: Optional[str] = "pending"  # Estado del documento (puede ser "pending", "verified", etc.)
 
 # Esquema para actualizar un usuario
 class UserUpdate(UserBase):
     password: Optional[str] = None
+    is_active: Optional[bool] = None  # Puede actualizar el estado de actividad
+    documents: Optional[List[str]] = []  # Lista de documentos
+    documents_id: Optional[List[str]] = []  # IDs de documentos
+    documents_link: Optional[List[str]] = []  # Enlaces a documentos
+    documents_status: Optional[str] = None  # Estado del documento
 
 # Esquema para devolver un usuario
 class User(UserBase):
     id: int
     is_active: bool
+    documents: List[str]  # Lista de documentos
+    documents_id: List[str]  # IDs de documentos
+    documents_link: List[str]  # Enlaces a documentos
+    documents_status: str  # Estado del documento
 
     class Config:
         from_attributes = True
