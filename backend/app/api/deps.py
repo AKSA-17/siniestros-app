@@ -38,6 +38,24 @@ def get_current_user(
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
     return user
 
+def get_current_agent(
+    db: Session = Depends(get_db), token: str = Depends(reusable_oauth2)
+) -> models.Agent:
+    try:
+        payload = jwt.decode(
+            token, settings.SECRET_KEY, algorithms=["HS256"]
+        )
+        token_data = schemas.TokenPayload(**payload)
+    except (jwt.JWTError, ValidationError):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="No se pudieron validar las credenciales",
+        )
+    agent = crud.agent.get(db, id=token_data.sub)
+    if not agent:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    return agent
+
 def get_current_active_user(
     current_user: models.User = Depends(get_current_user),
 ) -> models.User:

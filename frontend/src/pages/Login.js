@@ -25,11 +25,19 @@ const Login = () => {
     
     setFormError('');
     console.log("Intentando iniciar sesión con:", email);
-    const success = await login(email, password);
     
-    console.log("Resultado del login:", success);
-    if (success) {
-      navigate('/dashboard');
+    // Usa la nueva versión del método login que devuelve {success, userType}
+    const result = await login(email, password);
+    
+    console.log("Resultado del login:", result);
+    
+    // Redirigir según el tipo de usuario
+    if (result.success) {
+      if (result.userType === 'agent') {
+        navigate('/agent-dashboard'); // Ruta para agentes
+      } else {
+        navigate('/dashboard'); // Ruta para usuarios regulares
+      }
     }
   };
 

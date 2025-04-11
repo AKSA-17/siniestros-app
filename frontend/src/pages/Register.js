@@ -1,3 +1,5 @@
+// Frontend/src/pages/register.js
+
 import React, { useState } from 'react';
 import { 
   Container, Box, TextField, Button, Typography, 

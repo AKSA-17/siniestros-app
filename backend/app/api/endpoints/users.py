@@ -61,6 +61,24 @@ def create_user_open(
     user = crud.user.create(db, obj_in=user_in)
     return user
 
+@router.post("/open_agent", response_model=schemas.Agent)
+def create_user_open(
+    *,
+    db: Session = Depends(deps.get_db),
+    agent_in: schemas.AgentCreate,
+) -> Any:
+    """
+    Create new user without the need to be logged in.
+    """
+    agent = crud.agent.get_by_email(db, email=agent_in.email)
+    if agent:
+        raise HTTPException(
+            status_code=400,
+            detail="The user with this username already exists in the system.",
+        )
+    agent = crud.agent.create(db, obj_in=agent_in)
+    return agent
+
 @router.put("/me", response_model=schemas.User)
 def update_user_me(
     *,
