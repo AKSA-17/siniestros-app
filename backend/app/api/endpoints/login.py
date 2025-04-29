@@ -24,24 +24,57 @@ def login_access_token(
     user = crud.user.authenticate(
         db, email=form_data.username, password=form_data.password
     )
-    if not user:
-        raise HTTPException(status_code=400, detail="Incorrect email or password")
-    elif not crud.user.is_active(user):
-        raise HTTPException(status_code=400, detail="Inactive user")
-    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-    return {
-        "access_token": security.create_access_token(
-            user.id, expires_delta=access_token_expires
-        ),
-        "token_type": "bearer",
-    }
+    
+    if user:
+        print("Iniciando como Usuario")
 
+        if not crud.user.is_active(user):
+            raise HTTPException(status_code=400, detail="Inactive user")
+        access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+        return {
+            "access_token": security.create_access_token(
+                user.id, expires_delta=access_token_expires
+            ),
+            "token_type": "bearer",
+            "user_type": "user"
+        }
+    else:
+        print("Iniciando como Agente")
+        
+        agent = crud.agent.authenticate(
+            db, email=form_data.username, password=form_data.password
+        )
+        if not agent:
+            raise HTTPException(status_code=400, detail="Incorrect email or password")
+        
+        # Aquí verificaría si el agente está activo, similar a lo que haces con users
+        # if not crud.agent.is_active(agent):
+        #     raise HTTPException(status_code=400, detail="Inactive agent")
+        
+        access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+        return {
+            "access_token": security.create_access_token(
+                agent.id, expires_delta=access_token_expires
+            ),
+            "token_type": "bearer",
+            "user_type": "agent"
+        }
+    
 @router.post("/login/test-token", response_model=schemas.User)
 def test_token(current_user: models.User = Depends(deps.get_current_user)) -> Any:
     """
     Test access token
     """
     return current_user
+
+@router.post("/login/test-agent-token", response_model=schemas.Agent)
+def test_agent_token(current_agent: models.Agent = Depends(deps.get_current_agent)) -> Any:
+    """
+    Test access token for agents
+    """
+    return current_agent
+
+
 
 @router.post("/test-simple")
 def test_simple_login():
